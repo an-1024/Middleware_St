@@ -11,7 +11,6 @@ import org.springframework.messaging.converter.StringMessageConverter;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-import static jdk.nashorn.internal.runtime.regexp.joni.Config.log;
 
 /**
  * @Package: com.anzhi.rocketmq.mq
