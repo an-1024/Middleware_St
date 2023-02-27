@@ -3,9 +3,11 @@ package com.anzhi.jedis;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.Pipeline;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 public class JedisDemo {
     public static void main(String[] args) throws IOException {
@@ -25,15 +27,18 @@ public class JedisDemo {
             System.out.println(jedis.get("single"));
             //管道示例
             //管道的命令执行方式:cat redis.txt | redis‐cli ‐h 127.0.0.1 ‐a password ‐ p 6379 ‐‐pipe
-            /*Pipeline pl = jedis.pipelined();
-            for(inti=0;i<10;i++){
+            Pipeline pl = jedis.pipelined();
+            for(int i=0;i<10;i++){
                 pl.incr("pipelineKey");
-                pl.set("zhuge" + i, "zhuge");
+                pl.set("zhangsan" + i, "zhuge");
+                // 模拟管道报错
+                pl.setbit("zhangsan", -1, true);
             }
-             */
+            List<Object> results=pl.syncAndReturnAll();
+            System.out.println(results);
             //lua脚本模拟一个商品减库存的原子操作
             //lua脚本命令执行方式:redis‐cli ‐‐eval /tmp/test.lua , 10
-            /*jedis.set("product_count_10016", "15"); //初始化商品10016的库存*/
+            jedis.set("product_count_10016", "15"); //初始化商品10016的库存
             String script = " local count = redis.call('get', KEYS[1]) " + " local a = tonumber(count) " +
                     " local b = tonumber(ARGV[1]) " + "ifa>=bthen" + " redis.call('set', KEYS[1], a‐b) " +
                     "end" + " return 0 ";
