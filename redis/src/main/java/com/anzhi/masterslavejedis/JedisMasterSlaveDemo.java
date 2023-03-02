@@ -1,4 +1,4 @@
-package com.anzhi.jedis;
+package com.anzhi.masterslavejedis;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-public class JedisDemo {
+public class JedisMasterSlaveDemo {
     public static void main(String[] args) throws IOException {
         JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
         jedisPoolConfig.setMaxTotal(20);
