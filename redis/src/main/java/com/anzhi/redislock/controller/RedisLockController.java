@@ -1,11 +1,9 @@
 package com.anzhi.redislock.controller;
 
-import ch.qos.logback.core.encoder.EchoEncoder;
 import org.redisson.Redisson;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.redisson.api.RLock;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,6 +23,10 @@ public class RedisLockController {
     @Resource
     private Redisson redisson;
 
+    /**
+     * 并发存在问题的锁
+     * @return
+     */
     @RequestMapping("/deduct_stock")
     public String deductStock() {
         synchronized (this) {
@@ -43,7 +45,7 @@ public class RedisLockController {
     }
 
     /**
-     * redis 实现一个简单的分布式锁
+     * redis 完善上述分布式锁的问题
      * @return
      */
     @RequestMapping("/deduct_stock_redislock")
@@ -74,6 +76,34 @@ public class RedisLockController {
             if(clientId.equals(stringRedisTemplate.opsForValue().get("product_Id_A"))){
                 redisTemplate.delete("product_Id_A");
             }
+        }
+    }
+
+    /**
+     * redisson 解决超时问题
+     * @return
+     */
+    @RequestMapping("/deduct_stock_redissonlock")
+    public String deductStockByRedissonLock() {
+        // 首先获取锁对象
+        RLock redisLock =redisson.getLock("product_Id_A");
+        // 加分布式锁
+        redisLock.lock();
+        // 捕获业务异常释放锁，防止死锁
+        try {
+            // 提前在redis服务上设置 300 个库存
+            int stock = Integer.parseInt(stringRedisTemplate.opsForValue().get("stock"));
+            if (stock > 0) {
+                int realStock = stock - 1;
+                // 重新设置缓存
+                stringRedisTemplate.opsForValue().set("stock", realStock + "");
+                System.out.println("扣减库存成功，剩余库存：" + realStock);
+            } else {
+                System.out.println("扣减库存失败，库存不足");
+            }
+            return String.valueOf(stock);
+        }finally {
+            redisLock.unlock();
         }
     }
 }
