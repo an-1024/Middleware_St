@@ -30,18 +30,31 @@ public class ProductService {
     private static final String EMPTY_CACHE = "{}";
     
     public Product createProduct(Product product){
-        // 创建商品
-        Product createResultProduct = productMapper.create(product);
-        // 设置缓存
-        redisUtil.set(RedisKeyPrefixConst.PRODUCT_CACHE + createResultProduct.getId(), JSON.toJSONString(createResultProduct),
-                generateProductCacheTimeOut(), TimeUnit.SECONDS);
+        RLock createProductLock = redisson.getLock(RedisKeyPrefixConst.INCONSISTENT_DOUBLE_WRITE_DATA_CACHE + product.getId());
+        createProductLock.lock();
+        Product createResultProduct = null;
+        try {
+            // 创建商品
+            createResultProduct = productMapper.create(product);
+            // 设置缓存
+            redisUtil.set(RedisKeyPrefixConst.PRODUCT_CACHE + createResultProduct.getId(), JSON.toJSONString(createResultProduct),
+                    generateProductCacheTimeOut(), TimeUnit.SECONDS);
+        }finally {
+            createProductLock.unlock();
+        }
         return createResultProduct;
     }
     
     public Product updateProduct(Product product){
-        Product updateResultProduct = productMapper.update(product);
-        redisUtil.set(RedisKeyPrefixConst.PRODUCT_CACHE + updateResultProduct.getId(), JSON.toJSONString(updateResultProduct),
-                generateProductCacheTimeOut(), TimeUnit.SECONDS);
+        RLock updateProductLock = redisson.getLock(RedisKeyPrefixConst.PRODUCT_CACHE + product.getId());
+        Product updateResultProduct = null;
+        try {
+             updateResultProduct = productMapper.update(product);
+            redisUtil.set(RedisKeyPrefixConst.PRODUCT_CACHE + updateResultProduct.getId(), JSON.toJSONString(updateResultProduct),
+                    generateProductCacheTimeOut(), TimeUnit.SECONDS);
+        }finally {
+            updateProductLock.unlock();
+        }
         return updateResultProduct;
     }
     
@@ -49,6 +62,7 @@ public class ProductService {
         Product product = null;
         String productCacheKey = RedisKeyPrefixConst.PRODUCT_CACHE + productId;
         String hotProductLockCacheKey = RedisKeyPrefixConst.HOT_PRODUCT_LOCK_CACHE + productId;
+        String inconsistentDoubleWriteDataCacheKey = RedisKeyPrefixConst.INCONSISTENT_DOUBLE_WRITE_DATA_CACHE + productId;
 
         product = getProductFromCache(productCacheKey);
         if(!Objects.isNull(product)){
@@ -63,7 +77,7 @@ public class ProductService {
             if(!Objects.isNull(product)){
                 return product;
             }
-            return getProductFromData(productCacheKey,productId);
+            return getProductFromData(productCacheKey, productId, inconsistentDoubleWriteDataCacheKey);
         }finally {
             hotProductLockCache.unlock();
         }
@@ -96,16 +110,22 @@ public class ProductService {
     }
     
     
-    private Product getProductFromData(String productCacheKey, Long productId){
-        Product product = productMapper.get(productId);
-        if (!Objects.isNull(product)) {
-            redisUtil.set(productCacheKey, JSON.toJSONString(product),
-                    generateProductCacheTimeOut(), TimeUnit.SECONDS);
-            redisUtil.expire(productCacheKey, generateProductCacheTimeOut(), TimeUnit.SECONDS);
-        } else {
-            redisUtil.set(productCacheKey, EMPTY_CACHE, generateEmptyCacheTimeOut(), TimeUnit.SECONDS);
+    private Product getProductFromData(String productCacheKey, Long productId, String inconsistentDoubleWriteDataCacheKey){
+        RLock getProductLock = redisson.getLock(inconsistentDoubleWriteDataCacheKey);
+        getProductLock.lock();
+        Product product = null;
+        try {
+            product = productMapper.get(productId);
+            if (!Objects.isNull(product)) {
+                redisUtil.set(productCacheKey, JSON.toJSONString(product),
+                        generateProductCacheTimeOut(), TimeUnit.SECONDS);
+                redisUtil.expire(productCacheKey, generateProductCacheTimeOut(), TimeUnit.SECONDS);
+            } else {
+                redisUtil.set(productCacheKey, EMPTY_CACHE, generateEmptyCacheTimeOut(), TimeUnit.SECONDS);
+            }
+        }finally {
+            getProductLock.unlock();
         }
-        
         return product;
     }
 }
