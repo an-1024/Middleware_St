@@ -14,6 +14,8 @@ import javax.annotation.Resource;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
 
 @Service
 public class ProductService {
@@ -30,8 +32,9 @@ public class ProductService {
     private static final String EMPTY_CACHE = "{}";
     
     public Product createProduct(Product product){
-        RLock createProductLock = redisson.getLock(RedisKeyPrefixConst.INCONSISTENT_DOUBLE_WRITE_DATA_CACHE + product.getId());
-        createProductLock.lock();
+        ReadWriteLock createProductLock = redisson.getReadWriteLock(RedisKeyPrefixConst.INCONSISTENT_DOUBLE_WRITE_DATA_CACHE + product.getId());
+        Lock createProductWriteLock = createProductLock.writeLock();
+        createProductWriteLock.lock();
         Product createResultProduct = null;
         try {
             // 创建商品
@@ -40,20 +43,22 @@ public class ProductService {
             redisUtil.set(RedisKeyPrefixConst.PRODUCT_CACHE + createResultProduct.getId(), JSON.toJSONString(createResultProduct),
                     generateProductCacheTimeOut(), TimeUnit.SECONDS);
         }finally {
-            createProductLock.unlock();
+            createProductWriteLock.unlock();
         }
         return createResultProduct;
     }
     
     public Product updateProduct(Product product){
-        RLock updateProductLock = redisson.getLock(RedisKeyPrefixConst.PRODUCT_CACHE + product.getId());
+        ReadWriteLock updateProductLock = redisson.getReadWriteLock(RedisKeyPrefixConst.PRODUCT_CACHE + product.getId());
+        Lock updateProductWriteLock = updateProductLock.writeLock();
+        updateProductWriteLock.lock();
         Product updateResultProduct = null;
         try {
              updateResultProduct = productMapper.update(product);
             redisUtil.set(RedisKeyPrefixConst.PRODUCT_CACHE + updateResultProduct.getId(), JSON.toJSONString(updateResultProduct),
                     generateProductCacheTimeOut(), TimeUnit.SECONDS);
         }finally {
-            updateProductLock.unlock();
+            updateProductWriteLock.unlock();
         }
         return updateResultProduct;
     }
@@ -82,6 +87,32 @@ public class ProductService {
             hotProductLockCache.unlock();
         }
         
+    }
+
+
+    public Product getProductTryLock(Long productId) {
+        Product product = null;
+        String productCacheKey = RedisKeyPrefixConst.PRODUCT_CACHE + productId;
+        String hotProductLockCacheKey = RedisKeyPrefixConst.HOT_PRODUCT_LOCK_CACHE + productId;
+        String inconsistentDoubleWriteDataCacheKey = RedisKeyPrefixConst.INCONSISTENT_DOUBLE_WRITE_DATA_CACHE + productId;
+
+        product = getProductFromCache(productCacheKey);
+        if (!Objects.isNull(product)) {
+            return product;
+        }
+        RLock hotProductLockCache = redisson.getLock(hotProductLockCacheKey);
+        try {
+            hotProductLockCache.tryLock(1, TimeUnit.SECONDS);
+            // product 分为两种情况，一种是有商品信息；另一种是黑客攻击没有商品信息
+            // 需要和前端约定如何处理。
+            product = getProductFromCache(productCacheKey);
+            if (!Objects.isNull(product)) {
+                return product;
+            }
+        }catch (Exception e){
+            // doSomething
+        }
+        return getProductFromData(productCacheKey, productId, inconsistentDoubleWriteDataCacheKey);
     }
     
     private Integer generateProductCacheTimeOut(){
