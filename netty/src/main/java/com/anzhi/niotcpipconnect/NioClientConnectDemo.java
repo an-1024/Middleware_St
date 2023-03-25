@@ -24,7 +24,9 @@ public class NioClientConnectDemo {
     }
     public static void main(String[] args) throws Exception {
         start();
+        // 终端输入信息
         Scanner scanner = new Scanner(System.in);
+        // 循环阻塞
         while(NioClientConnectDemo.sendMsg(scanner.next()));
 
     }
