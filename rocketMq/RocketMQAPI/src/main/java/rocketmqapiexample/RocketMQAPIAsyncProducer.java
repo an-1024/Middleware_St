@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class RocketMQAPIAsyncProducer {
     public static void main(String[] args) throws Exception{
-        DefaultMQProducer producer = new DefaultMQProducer("Jodie_Daily_test");
+        DefaultMQProducer producer = new DefaultMQProducer("As_Sync_Producer");
         producer.setNamesrvAddr(Constant.NAMESERVER);
         producer.start();
         // 消息重试次数

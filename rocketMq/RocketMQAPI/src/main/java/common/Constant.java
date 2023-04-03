@@ -7,5 +7,5 @@ package common;
  * @Description:
  */
 public class Constant {
-    public final static String NAMESERVER = "192.168.40.128:9876;192.168.40.129:9876;192.168.40.130:9876";
+    public final static String NAMESERVER = "10.211.55.3:9876;10.211.55.4:9876;10.211.55.5:9876";
 }

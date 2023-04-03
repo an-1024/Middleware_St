@@ -17,9 +17,9 @@ import java.util.List;
  */
 public class RocketMQAPIPushConsumer {
     public static void main(String[] args) throws Exception{
-        DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("CID_JODIE_1");
+        DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("TopicOneway_Group");
         consumer.setNamesrvAddr(Constant.NAMESERVER);
-        consumer.subscribe("TopicTest", "*");
+        consumer.subscribe("TopicOneway", "*");
         consumer.setConsumeTimestamp("20181109221800");
         consumer.registerMessageListener(new MessageListenerConcurrently() {
             @Override

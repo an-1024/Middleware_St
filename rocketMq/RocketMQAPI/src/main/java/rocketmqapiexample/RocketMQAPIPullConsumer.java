@@ -19,11 +19,11 @@ public class RocketMQAPIPullConsumer {
     private static final Map<MessageQueue, Long> OFFSET_TABLE = new HashMap<>();
 
     public static void main(String[] args) throws Exception{
-        DefaultMQPullConsumer consumer = new DefaultMQPullConsumer("please_rename_unique_group_name_5");
+        DefaultMQPullConsumer consumer = new DefaultMQPullConsumer("TopicOneway_Group");
         consumer.setNamesrvAddr(Constant.NAMESERVER);
         consumer.start();
 
-        Set<MessageQueue> mqs = consumer.fetchSubscribeMessageQueues("TopicTest");
+        Set<MessageQueue> mqs = consumer.fetchSubscribeMessageQueues("TopicOneway");
         for(MessageQueue mq:mqs){
             System.out.printf("Consume from the queue: %s%n", mq);
             SINGLE_MQ:
