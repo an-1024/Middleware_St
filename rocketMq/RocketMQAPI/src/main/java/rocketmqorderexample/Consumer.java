@@ -14,7 +14,7 @@ import java.util.List;
  * @ClassName: Consumer
  * @Author: AZ
  * @CreateTime: 2021/8/10 20:08
- * @Description:
+ * @Description: 顺序消费，启动多个 Consumer 观察
  */
 public class Consumer {
     public static void main(String[] args) throws MQClientException {

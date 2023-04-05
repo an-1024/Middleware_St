@@ -17,12 +17,12 @@ import java.util.List;
  * @ClassName: PushConsumer
  * @Author: AZ
  * @CreateTime: 2021/8/14 18:56
- * @Description:
+ * @Description: 广播消费
  */
 public class PushConsumer {
 
     public static void main(String[] args) throws InterruptedException, MQClientException {
-        DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("please_rename_unique_group_name_1");
+        DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("order_msg");
         consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_LAST_OFFSET);
         // 设置消费者的消费模式
         consumer.setMessageModel(MessageModel.BROADCASTING);

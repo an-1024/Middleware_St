@@ -37,12 +37,14 @@ public class RocketMQAPIAsyncProducer {
                         "ordId188",
                         "Hello World".getBytes(RemotingHelper.DEFAULT_CHARSET));
                 producer.send(msg, new SendCallback() {
+                    // 当 Broker 接收到 Producer 消息，表示消息发送成功，此时会回掉 onSuccess
                     @Override
                     public void onSuccess(SendResult sendResult) {
                         countDownLatch.countDown();
                         System.out.printf("%-10d ok %s %n", index, sendResult.getMsgId());
                     }
 
+                    // 失败则回掉 onException 方法
                     @Override
                     public void onException(Throwable e) {
                         countDownLatch.countDown();

@@ -12,8 +12,8 @@ import org.apache.rocketmq.remoting.common.RemotingHelper;
  * @CreateTime: 2021/8/9 17:39
  * @Description: 同步发送消息
  */
-public class RocketMQAPIProducer {
-    public final static String NAMESERVER = "192.168.40.131:9876;192.168.40.132:9876;192.168.40.133:9876";
+public class RocketMQAPISyncProducer {
+    public final static String NAMESERVER = "10.211.55.3:9876;10.211.55.4:9876;10.211.55.5:9876";
 
     public static void main(String[] args) throws Exception{
         // 使用生产者组名称实例化。
@@ -28,8 +28,7 @@ public class RocketMQAPIProducer {
                     .getBytes(RemotingHelper.DEFAULT_CHARSET)
             );
 
-            //调用 send message 将消息发送给消息处理中心Broker
-            //调用sendOneWay方式来发送消息，该方法没有返回值，也没有回调，只负责发送消息
+            //调用 send message 将消息发送给消息处理中心Broker，Broker 会返回一个消息状态给 Producer
             SendResult result = producer.send(msg);
             SendStatus sendStatus = result.getSendStatus();
             System.out.println(sendStatus);

@@ -16,7 +16,7 @@ import java.util.concurrent.*;
  * @ClassName: TransactionProducer
  * @Author: AZ
  * @CreateTime: 2021/8/21 17:10
- * @Description:
+ * @Description: 事物消息
  */
 public class TransactionProducer {
     public static void main(String[] args) throws MQClientException, InterruptedException{

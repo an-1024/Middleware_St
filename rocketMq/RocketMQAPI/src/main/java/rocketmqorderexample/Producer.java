@@ -19,7 +19,7 @@ import java.util.List;
  * @ClassName: Producer
  * @Author: AZ
  * @CreateTime: 2021/8/10 20:07
- * @Description:
+ * @Description: 顺序生产
  */
 public class Producer {
     public static void main(String[] args) throws UnsupportedEncodingException {

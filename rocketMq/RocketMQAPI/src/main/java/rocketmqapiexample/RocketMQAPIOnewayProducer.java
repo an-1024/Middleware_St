@@ -21,6 +21,8 @@ public class RocketMQAPIOnewayProducer {
             Message msg = new Message("TopicOneway",
                     "TagA",
                     ("Hello RocketMQ" +i).getBytes(RemotingHelper.DEFAULT_CHARSET));
+            
+            //调用sendOneWay方式来发送消息，该方法没有返回值，也没有回调，只负责发送消息
             producer.sendOneway(msg);
             System.out.println("发送消息完成");
         }

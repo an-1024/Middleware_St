@@ -14,7 +14,7 @@ import org.apache.rocketmq.common.message.MessageExt;
  * @Description:
  */
 public class TransactionListenerImpl implements TransactionListener {
-    // 在提交玩事物消息后执行
+    // 在提交完事物消息后执行
     // 返回COMMIT_MESAGE状态的消息会立即被消费者消费到
     // 返回ROLLBACK_MESSAGE状态的消息会被丢弃
     // 返回UNKNOW状态的消息会由Broker过一段时间在来回查事物状态

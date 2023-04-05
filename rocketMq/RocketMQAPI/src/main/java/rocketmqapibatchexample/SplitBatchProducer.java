@@ -14,7 +14,7 @@ import java.util.List;
  * @ClassName: SplitBatchProducer
  * @Author: AZ
  * @CreateTime: 2021/8/16 21:53
- * @Description:
+ * @Description: 批量发送消息
  */
 public class SplitBatchProducer {
     public static void main(String[] args) throws Exception{

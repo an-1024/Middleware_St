@@ -15,7 +15,7 @@ import java.util.List;
  * @ClassName: SqlFilterConsumer
  * @Author: AZ
  * @CreateTime: 2021/8/21 10:51
- * @Description:
+ * @Description: 过滤消费
  */
 public class SqlFilterConsumer {
     public static void main(String[] args) throws Exception{

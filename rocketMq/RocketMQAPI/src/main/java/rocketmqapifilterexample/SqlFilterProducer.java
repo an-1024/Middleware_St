@@ -11,7 +11,7 @@ import org.apache.rocketmq.remoting.common.RemotingHelper;
  * @ClassName: SqlFilterProducer
  * @Author: AZ
  * @CreateTime: 2021/8/21 10:39
- * @Description:
+ * @Description: 消息生产者
  */
 public class SqlFilterProducer {
     public static void main(String[] args) throws Exception{

@@ -10,7 +10,7 @@ import org.apache.rocketmq.common.message.Message;
  * @ClassName: ScheduledMessageProducer
  * @Author: AZ
  * @CreateTime: 2021/8/14 20:54
- * @Description:
+ * @Description: 延迟消息
  */
 public class ScheduledMessageProducer {
     public static void main(String[] args) throws Exception {
