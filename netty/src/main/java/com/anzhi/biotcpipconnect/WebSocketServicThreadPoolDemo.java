@@ -30,7 +30,6 @@ public class WebSocketServicThreadPoolDemo {
                 // 监听连接, 建立连接实例
                 accept = serverSocket.accept();
                 System.out.println("accept client socket.....total = " + (++count));
-
                 // 实例化与客户端的输入输出流
                 executorService.execute(new ServerTask(accept));
             }
