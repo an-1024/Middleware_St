@@ -24,8 +24,11 @@ public class PushConsumer {
     public static void main(String[] args) throws InterruptedException, MQClientException {
         DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("order_msg");
         consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_LAST_OFFSET);
-        // 设置消费者的消费模式
+        // 设置消费者的消费模式-广播消费
         consumer.setMessageModel(MessageModel.BROADCASTING);
+        // 集群消费
+        // consumer.setMessageModel(MessageModel.CLUSTERING);
+        
         consumer.subscribe("OrderTopicTest", "*");
 
         consumer.setNamesrvAddr(Constant.NAMESERVER);
